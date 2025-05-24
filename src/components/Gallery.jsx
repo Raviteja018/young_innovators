@@ -1,40 +1,59 @@
 import React, { useState, useEffect } from 'react';
-
-const UNSPLASH_ACCESS_KEY = 'vLiz422yP5cAg5DbArkCP19oigLSfaP1oo7K4Vp6hFs'; // 🔑 Replace this
+import { UNSPLASH_ACCESS_KEY } from '../../utils/constants';
 
 const Gallery = () => {
   const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState(false);
 
+  const fetchGallery = async () => {
+    try {
+      const res = await fetch(
+        `https://api.unsplash.com/search/photos?query=student+entrepreneurship&per_page=9&client_id=${UNSPLASH_ACCESS_KEY}`
+      );
+      const json = await res.json();
+      setImages(json.results);
+      console.log(json.results)
+        
+
+    } catch (err) {
+      setError(true);
+      console.error("Image loading failed", err);
+    }
+  };
+
   useEffect(() => {
-    fetch(`https://api.unsplash.com/search/photos?query=innovation&per_page=9&client_id=${UNSPLASH_ACCESS_KEY}`)
-      .then((res) => res.json())
-      .then((data) => setImages(data.results))
-      .catch(() => setError(true));
+    fetchGallery();
   }, []);
 
   return (
-    <section className="bg-gray-100 py-12 px-6 md:px-16">
+    <section className="bg-gray-100 py-16 px-6 md:px-16">
       <div className="max-w-6xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-pink-600">Project Gallery</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-10 text-purple-600 drop-shadow">
+          🌟 Inspiring Moments from the Journey
+        </h2>
 
         {error ? (
-          <p className="text-red-600">Images could not be loaded at this time. Please try again later.</p>
+         <img />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {images.length > 0 ? (
               images.map((img) => (
-                <img
+                
+                <div
                   key={img.id}
-                  src={img.urls.small}
-                  alt={img.alt_description}
-                  onClick={() => setSelectedImage(img.urls.full)}
-                  className="rounded-lg cursor-pointer shadow-md transition duration-300 transform hover:scale-105"
-                />
+                  className="relative group overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl"
+                >
+                  <img
+                    src={img.urls.small}
+                    alt={img.alt_description || "Gallery Image"}
+                    onClick={() => setSelectedImage(img.urls.full)}
+                    className="w-full h-64 object-cover cursor-pointer transform group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
               ))
             ) : (
-              <p>Loading images...</p>
+              <p className="text-gray-500">Loading inspiring visuals...</p>
             )}
           </div>
         )}
@@ -47,8 +66,8 @@ const Gallery = () => {
           >
             <img
               src={selectedImage}
-              alt="Selected"
-              className="max-h-[80%] max-w-[90%] rounded-lg shadow-xl transition-opacity duration-500"
+              alt="Selected full-size"
+              className="max-h-[80%] max-w-[90%] rounded-lg shadow-2xl transition-opacity duration-500"
             />
           </div>
         )}
@@ -58,3 +77,4 @@ const Gallery = () => {
 };
 
 export default Gallery;
+
